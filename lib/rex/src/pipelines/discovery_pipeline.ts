@@ -77,6 +77,7 @@ try {
 
     const mod = await import(file) as RexFileImports;
 
+
     if (!mod.tasks) {
         if (globalTasks.size === 0) {
             ctx.bus.debug(`No tasks found in ${file}.  Task file must export a variable called tasks is type TaskMap.`);

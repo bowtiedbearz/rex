@@ -88,7 +88,7 @@ export class TaskMapBuilder {
 
                 return output({
                     code: o.code,
-                    shell: o.shell,
+                    shell: shell,
                     cwd: ctx.state.cwd,
                 });
             }
