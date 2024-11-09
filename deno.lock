@@ -1,0 +1,245 @@
+{
+  "version": "4",
+  "specifiers": {
+    "jsr:@bearz/ansi@^0.0.0": "0.0.0",
+    "jsr:@bearz/chars@^0.0.0": "0.0.0",
+    "jsr:@bearz/ci-env@^0.0.0": "0.0.0",
+    "jsr:@bearz/debug@^0.0.0": "0.0.0",
+    "jsr:@bearz/dotenv@^0.0.0": "0.0.0",
+    "jsr:@bearz/env@^0.0.0": "0.0.0",
+    "jsr:@bearz/exec@^0.0.0": "0.0.0",
+    "jsr:@bearz/fmt@^0.0.0": "0.0.0",
+    "jsr:@bearz/fs@^0.0.0": "0.0.0",
+    "jsr:@bearz/functional@^0.0.0": "0.0.0",
+    "jsr:@bearz/process-elevated@^0.0.0": "0.0.0",
+    "jsr:@bearz/process@^0.0.0": "0.0.0",
+    "jsr:@bearz/runtime-info@^0.0.0": "0.0.0",
+    "jsr:@bearz/shells@^0.0.0": "0.0.0",
+    "jsr:@bearz/slices@^0.0.0": "0.0.0",
+    "jsr:@bearz/strings@^0.0.0": "0.0.0",
+    "jsr:@cliffy/command@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@cliffy/flags@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@cliffy/internal@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@cliffy/table@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@std/fmt@~1.0.2": "1.0.2",
+    "jsr:@std/fs@1.0.0": "1.0.0",
+    "jsr:@std/path@*": "1.0.8",
+    "jsr:@std/path@^1.0.6": "1.0.8",
+    "jsr:@std/path@^1.0.8": "1.0.8",
+    "jsr:@std/text@~1.0.7": "1.0.7",
+    "npm:twig@*": "1.17.1"
+  },
+  "jsr": {
+    "@bearz/ansi@0.0.0": {
+      "integrity": "c51b4984d967b7bba8c8ad36e0a5e3a7b9c82123ccc9577ea22ac188affee071",
+      "dependencies": [
+        "jsr:@bearz/env",
+        "jsr:@bearz/fmt",
+        "jsr:@bearz/process",
+        "jsr:@bearz/runtime-info",
+        "jsr:@bearz/strings"
+      ]
+    },
+    "@bearz/chars@0.0.0": {
+      "integrity": "51ee7c73f3b67261569bde432a1ab080c9ef536467b22d8215549a8a8aa3566a"
+    },
+    "@bearz/ci-env@0.0.0": {
+      "integrity": "5a3124230096c010141a501213ca6f735cf3865bf6694d6fa7b5d656baf24091",
+      "dependencies": [
+        "jsr:@bearz/ansi",
+        "jsr:@bearz/env",
+        "jsr:@bearz/fmt"
+      ]
+    },
+    "@bearz/debug@0.0.0": {
+      "integrity": "f7ada3ec4836406989b7fda8b1cecf08499e3b56a6c1fdff3f10f37d13f7ec7c",
+      "dependencies": [
+        "jsr:@bearz/fmt"
+      ]
+    },
+    "@bearz/dotenv@0.0.0": {
+      "integrity": "6e643ec69e664886fdda3e41415f3393b45d5df70258018aedd135496fdd49c0",
+      "dependencies": [
+        "jsr:@bearz/chars",
+        "jsr:@bearz/env",
+        "jsr:@bearz/runtime-info",
+        "jsr:@bearz/strings"
+      ]
+    },
+    "@bearz/env@0.0.0": {
+      "integrity": "1943ae30037be448dcf25c5a63ed8016663ce317aad4ddea6c9ff6273cdf174c",
+      "dependencies": [
+        "jsr:@bearz/chars",
+        "jsr:@bearz/runtime-info",
+        "jsr:@bearz/strings"
+      ]
+    },
+    "@bearz/exec@0.0.0": {
+      "integrity": "1c343f792e7f55222549b85e0d86f5ead313cff251d1f8288bb02a8a5eead7df",
+      "dependencies": [
+        "jsr:@bearz/debug",
+        "jsr:@bearz/env",
+        "jsr:@bearz/fs",
+        "jsr:@bearz/runtime-info",
+        "jsr:@bearz/strings",
+        "jsr:@std/path@^1.0.6"
+      ]
+    },
+    "@bearz/fmt@0.0.0": {
+      "integrity": "8183226df2cdbdfb5ad5513f9aafbb8635f531305393d063fad25fb81b0d8a24",
+      "dependencies": [
+        "jsr:@bearz/process"
+      ]
+    },
+    "@bearz/fs@0.0.0": {
+      "integrity": "3a16313de26ba1350a9fc13e659878775258051f5ba241a26ad16ea7ffa5b664",
+      "dependencies": [
+        "jsr:@bearz/debug",
+        "jsr:@bearz/runtime-info",
+        "jsr:@std/path@^1.0.6"
+      ]
+    },
+    "@bearz/functional@0.0.0": {
+      "integrity": "e37a726e61e45d396c6bf48b85c756adab8ca6868b1737025c07b43a0a297a54"
+    },
+    "@bearz/process@0.0.0": {
+      "integrity": "31e2e1c8f97b4d0ec0ce9cb52bb736c56915b2fa9d0849fbc861dc8689e00d1c"
+    },
+    "@bearz/process-elevated@0.0.0": {
+      "integrity": "a232ebe7001c8c08b6161a82a81480ef5e448f91ccf00bcb8e7e59c9ab050c62"
+    },
+    "@bearz/runtime-info@0.0.0": {
+      "integrity": "a2c550656e0f00f899514db219f10bc28a7bd46dfa9182321f25ee93a9c7a566"
+    },
+    "@bearz/shells@0.0.0": {
+      "integrity": "9e1cb56122323f6caf9fbc7941592d279c3d8cf24b78f3601809292a3ccd53c7",
+      "dependencies": [
+        "jsr:@bearz/exec",
+        "jsr:@bearz/fs",
+        "jsr:@bearz/runtime-info",
+        "jsr:@std/path@^1.0.6"
+      ]
+    },
+    "@bearz/slices@0.0.0": {
+      "integrity": "3cf4d9ec874eefb3f246b49e77a2b17ddac540b7f853f5e14503045f7dbcee63",
+      "dependencies": [
+        "jsr:@bearz/chars",
+        "jsr:@bearz/fmt",
+        "jsr:@bearz/runtime-info"
+      ]
+    },
+    "@bearz/strings@0.0.0": {
+      "integrity": "a4de9218f88bcb5e3d18f67653f36884fdcd5c4bbc686095a7f23d5485f99f1d",
+      "dependencies": [
+        "jsr:@bearz/chars",
+        "jsr:@bearz/slices"
+      ]
+    },
+    "@cliffy/command@1.0.0-rc.7": {
+      "integrity": "1288808d7a3cd18b86c24c2f920e47a6d954b7e23cadc35c8cbd78f8be41f0cd",
+      "dependencies": [
+        "jsr:@cliffy/flags",
+        "jsr:@cliffy/internal",
+        "jsr:@cliffy/table",
+        "jsr:@std/fmt",
+        "jsr:@std/text"
+      ]
+    },
+    "@cliffy/flags@1.0.0-rc.7": {
+      "integrity": "318d9be98f6a6417b108e03dec427dea96cdd41a15beb21d2554ae6da450a781",
+      "dependencies": [
+        "jsr:@std/text"
+      ]
+    },
+    "@cliffy/internal@1.0.0-rc.7": {
+      "integrity": "10412636ab3e67517d448be9eaab1b70c88eba9be22617b5d146257a11cc9b17"
+    },
+    "@cliffy/table@1.0.0-rc.7": {
+      "integrity": "9fdd9776eda28a0b397981c400eeb1aa36da2371b43eefe12e6ff555290e3180",
+      "dependencies": [
+        "jsr:@std/fmt"
+      ]
+    },
+    "@std/fmt@1.0.2": {
+      "integrity": "87e9dfcdd3ca7c066e0c3c657c1f987c82888eb8103a3a3baa62684ffeb0f7a7"
+    },
+    "@std/fs@1.0.0": {
+      "integrity": "d72e4a125af7168d717a2ed1dca77a728b422b0d138fd20579e3fa41a77da943"
+    },
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
+    },
+    "@std/text@1.0.7": {
+      "integrity": "344a820af99fde81ae1d4f9ce586da3f47a58cda25ac4c4dd688166cf5ed97f1"
+    }
+  },
+  "npm": {
+    "@babel/runtime@7.25.7": {
+      "integrity": "sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==",
+      "dependencies": [
+        "regenerator-runtime"
+      ]
+    },
+    "balanced-match@1.0.2": {
+      "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="
+    },
+    "brace-expansion@1.1.11": {
+      "integrity": "sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==",
+      "dependencies": [
+        "balanced-match",
+        "concat-map"
+      ]
+    },
+    "concat-map@0.0.1": {
+      "integrity": "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="
+    },
+    "foreachasync@3.0.0": {
+      "integrity": "sha512-J+ler7Ta54FwwNcx6wQRDhTIbNeyDcARMkOcguEqnEdtm0jKvN3Li3PDAb2Du3ubJYEWfYL83XMROXdsXAXycw=="
+    },
+    "locutus@2.0.32": {
+      "integrity": "sha512-fr7OCpbE4xeefhHqfh6hM2/l9ZB3XvClHgtgFnQNImrM/nqL950o6FO98vmUH8GysfQRCcyBYtZ4C8GcY52Edw=="
+    },
+    "minimatch@3.0.8": {
+      "integrity": "sha512-6FsRAQsxQ61mw+qP1ZzbL9Bc78x2p5OqNgNpnoAFLTrX8n5Kxph0CsnhmKKNXTWjXqU5L0pGPR7hYk+XWZr60Q==",
+      "dependencies": [
+        "brace-expansion"
+      ]
+    },
+    "regenerator-runtime@0.14.1": {
+      "integrity": "sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw=="
+    },
+    "twig@1.17.1": {
+      "integrity": "sha512-atxccyr/BHtb1gPMA7Lvki0OuU17XBqHsNH9lzDHt9Rr1293EVZOosSZabEXz/DPVikIW8ZDqSkEddwyJnQN2w==",
+      "dependencies": [
+        "@babel/runtime",
+        "locutus",
+        "minimatch",
+        "walk"
+      ]
+    },
+    "walk@2.3.15": {
+      "integrity": "sha512-4eRTBZljBfIISK1Vnt69Gvr2w/wc3U6Vtrw7qiN5iqYJPH7LElcYh/iU4XWhdCy2dZqv1ToMyYlybDylfG/5Vg==",
+      "dependencies": [
+        "foreachasync"
+      ]
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@bearz/ansi@^0.0.0",
+      "jsr:@bearz/chars@^0.0.0",
+      "jsr:@bearz/ci-env@^0.0.0",
+      "jsr:@bearz/dotenv@^0.0.0",
+      "jsr:@bearz/env@^0.0.0",
+      "jsr:@bearz/fs@^0.0.0",
+      "jsr:@bearz/functional@^0.0.0",
+      "jsr:@bearz/process-elevated@^0.0.0",
+      "jsr:@bearz/process@^0.0.0",
+      "jsr:@bearz/runtime-info@^0.0.0",
+      "jsr:@bearz/shells@^0.0.0",
+      "jsr:@bearz/strings@^0.0.0",
+      "jsr:@cliffy/command@1.0.0-rc.7",
+      "jsr:@std/path@^1.0.8"
+    ]
+  }
+}

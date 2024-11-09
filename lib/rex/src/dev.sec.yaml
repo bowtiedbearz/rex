@@ -1,0 +1,26 @@
+imports:
+  - "https://raw.githubusercontent.com/securestate/rex/master/lib/rex/src/imports.yaml"
+
+
+context: "dev"
+
+vaults:
+  - name: whatever
+    driver: whatever
+    uri: whatever
+    inputs:
+      mi: whatever 
+      test: whatever 
+
+    secrets:
+      - query: whatever
+        name: whatever
+        default: true
+
+
+var:
+  - name: whatever
+    type: whatever
+    value: whatever
+
+env:
