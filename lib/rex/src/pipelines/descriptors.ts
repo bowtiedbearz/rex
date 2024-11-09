@@ -1,5 +1,12 @@
-
-export type PipelinePrimitives = 'string' | 'number' | 'boolean' | 'integer' | 'bigint' | 'array' | 'object' | 'date';
+export type PipelinePrimitives =
+    | "string"
+    | "number"
+    | "boolean"
+    | "integer"
+    | "bigint"
+    | "array"
+    | "object"
+    | "date";
 
 export interface InputDescriptor {
     name: string;

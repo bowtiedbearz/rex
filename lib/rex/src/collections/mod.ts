@@ -1,27 +1,27 @@
-import { type Option, none, some } from '@bearz/functional';
+import { none, type Option, some } from "@bearz/functional";
 import { equalFold } from "@bearz/strings/equal";
 
-export interface ProxyObject extends Record<string, unknown>  {
+export interface ProxyObject extends Record<string, unknown> {
 }
 
-function proxy<T extends ProxyObject>(map: Map<string, unknown>) : ProxyObject {
+function proxy<T extends ProxyObject>(map: Map<string, unknown>): ProxyObject {
     return new Proxy({}, {
         get(_, key) {
-            if (typeof key === 'string' && key !== "") {
+            if (typeof key === "string" && key !== "") {
                 return map.get(key);
             }
 
             return undefined;
         },
         deleteProperty(_, key) {
-            if (typeof key !== 'string') {
+            if (typeof key !== "string") {
                 return false;
             }
 
             return map.delete(key);
         },
         has(_, key) {
-            if (typeof key !== 'string') {
+            if (typeof key !== "string") {
                 return false;
             }
 
@@ -31,25 +31,25 @@ function proxy<T extends ProxyObject>(map: Map<string, unknown>) : ProxyObject {
             return Array.from(map.keys());
         },
         set(_, key, value) {
-            if (typeof key !== 'string') {
+            if (typeof key !== "string") {
                 return false;
             }
 
             map.set(key as string, value);
-           
+
             return true;
         },
     }) as ProxyObject;
 }
 
 export class ProxyMap<V = unknown> extends Map<string, V> {
-    #proxy?: ProxyObject
+    #proxy?: ProxyObject;
 
-    empty() : boolean {
+    empty(): boolean {
         return this.size === 0;
     }
 
-    get proxy() : ProxyObject {
+    get proxy(): ProxyObject {
         if (!this.#proxy) {
             this.#proxy = proxy(this);
         }
@@ -62,7 +62,7 @@ export class ProxyMap<V = unknown> extends Map<string, V> {
         return value !== undefined && value !== null;
     }
 
-    merge(obj: Record<string, V> | ProxyMap<V>) : this {
+    merge(obj: Record<string, V> | ProxyMap<V>): this {
         if (obj instanceof ProxyMap) {
             obj = obj.toObject();
         }
@@ -74,7 +74,7 @@ export class ProxyMap<V = unknown> extends Map<string, V> {
         return this;
     }
 
-    tryGet(key: string) : Option<V> {
+    tryGet(key: string): Option<V> {
         const value = this.get(key);
         if (value === undefined || value === null) {
             return none();
@@ -83,12 +83,13 @@ export class ProxyMap<V = unknown> extends Map<string, V> {
         return some(value as V);
     }
 
-    query(path: string) : Option<V> {
-        const keys = path.split('.');
+    query(path: string): Option<V> {
+        const keys = path.split(".");
         let value: unknown = this as ProxyMap<V>;
         for (const key of keys) {
-            if (value === null || value === undefined)
-                return none()
+            if (value === null || value === undefined) {
+                return none();
+            }
 
             if (Array.isArray(value)) {
                 const index = Number.parseInt(key);
@@ -109,7 +110,7 @@ export class ProxyMap<V = unknown> extends Map<string, V> {
                 continue;
             }
 
-            if (typeof value === 'object' && value !== null) {
+            if (typeof value === "object" && value !== null) {
                 value = (value as Record<string, unknown>)[key];
                 continue;
             }
@@ -124,13 +125,12 @@ export class ProxyMap<V = unknown> extends Map<string, V> {
         return Object.fromEntries(this.entries());
     }
 
-    toObject() : Record<string, V> {
+    toObject(): Record<string, V> {
         return Object.fromEntries(this.entries()) as Record<string, V>;
     }
 }
 
 export class StringMap extends ProxyMap<string> {
-
     static fromObject(obj: Record<string, string>): StringMap {
         const map = new StringMap();
         for (const [key, value] of Object.entries(obj)) {
@@ -153,7 +153,7 @@ export class StringMap extends ProxyMap<string> {
             return none();
         }
 
-        return some(equalFold(value, 'true') || equalFold(value, '1'));
+        return some(equalFold(value, "true") || equalFold(value, "1"));
     }
 
     int(key: string): Option<number> {
@@ -162,7 +162,7 @@ export class StringMap extends ProxyMap<string> {
             return none();
         }
 
-        if (value === '') {
+        if (value === "") {
             return none();
         }
 
@@ -170,21 +170,21 @@ export class StringMap extends ProxyMap<string> {
         if (!Number.isNaN(n)) {
             return some(n);
         }
-        
+
         return none();
     }
-    
+
     bigint(key: string): Option<bigint> {
         const value = this.get(key);
         if (value === undefined || value === null) {
             return none();
         }
 
-        if (value === '') {
+        if (value === "") {
             return none();
         }
 
-        if (value === '') {
+        if (value === "") {
             return none();
         }
 
@@ -192,7 +192,7 @@ export class StringMap extends ProxyMap<string> {
         if (isNaN(n)) {
             return none();
         }
-        
+
         return some(BigInt(n));
     }
 
@@ -202,7 +202,7 @@ export class StringMap extends ProxyMap<string> {
             return none();
         }
 
-        if (value === '') {
+        if (value === "") {
             return none();
         }
 
@@ -216,7 +216,6 @@ export class StringMap extends ProxyMap<string> {
 }
 
 export class ObjectMap extends ProxyMap<unknown> {
-
     array<T = unknown>(key: string): Option<T[]> {
         const value = this.get(key);
         if (value === undefined || value === null) {
@@ -236,7 +235,7 @@ export class ObjectMap extends ProxyMap<unknown> {
             return none();
         }
 
-        if (typeof value !== 'string') {
+        if (typeof value !== "string") {
             return none();
         }
 
@@ -249,14 +248,14 @@ export class ObjectMap extends ProxyMap<unknown> {
             return none();
         }
 
-        switch(typeof value) {
-            case 'boolean':
+        switch (typeof value) {
+            case "boolean":
                 return some(value as boolean);
-            case 'string':
-                return some(value === 'true' || value === '1');
-            case 'number':
+            case "string":
+                return some(value === "true" || value === "1");
+            case "number":
                 return some(value !== 0);
-            case 'bigint':
+            case "bigint":
                 return some(value !== 0n);
             default:
                 return none();
@@ -269,73 +268,69 @@ export class ObjectMap extends ProxyMap<unknown> {
             return none();
         }
 
-        switch(typeof value) {
-            case 'number':
-                {
-                    if (!Number.isInteger(value)) {
-                        return none();
-                    }
-
-                    return some(value as number);
-                }
-            case 'boolean':
-                return some(value ? 1 : 0);
-            case 'bigint':
-                {
-                    const n = Number(value);
-                    if (!Number.isInteger(n)) {
-                        return none();
-                    }
-
-                    return some(n);
-                }
-            case 'string':
-                {
-                    if (value === '') {
-                        return none();
-                    }
-
-                    const n = Number.parseInt(value);
-                    if (!Number.isNaN(n)) {
-                        return some(n);
-                    }
-                    
+        switch (typeof value) {
+            case "number": {
+                if (!Number.isInteger(value)) {
                     return none();
                 }
+
+                return some(value as number);
+            }
+            case "boolean":
+                return some(value ? 1 : 0);
+            case "bigint": {
+                const n = Number(value);
+                if (!Number.isInteger(n)) {
+                    return none();
+                }
+
+                return some(n);
+            }
+            case "string": {
+                if (value === "") {
+                    return none();
+                }
+
+                const n = Number.parseInt(value);
+                if (!Number.isNaN(n)) {
+                    return some(n);
+                }
+
+                return none();
+            }
             default:
                 return none();
         }
     }
-    
+
     bigint(key: string): Option<bigint> {
         const value = this.get(key);
         if (value === undefined || value === null) {
             return none();
         }
 
-        switch(typeof value) {
-            case 'number':
+        switch (typeof value) {
+            case "number":
                 if (!Number.isInteger(value)) {
                     return none();
                 }
                 return some(BigInt(value as number));
-            case 'boolean':
+            case "boolean":
                 return some(value ? BigInt(1) : BigInt(0));
-            case 'bigint':
+            case "bigint":
                 return some(value as bigint);
-            case 'string':
-                {
-                    if (value === '') {
-                        return none();
-                    }
-
-                    const n = Number.parseInt(value);
-                    if (isNaN(n)) {
-                        return none();
-                    }
-                    
-                    return some(BigInt(n));
+            case "string": {
+                if (value === "") {
+                    return none();
                 }
+
+                const n = Number.parseInt(value);
+                if (isNaN(n)) {
+                    return none();
+                }
+
+                return some(BigInt(n));
+            }
             default:
                 return none();
         }
@@ -347,30 +342,29 @@ export class ObjectMap extends ProxyMap<unknown> {
             return none();
         }
 
-        switch(typeof value) {
-            case 'number':
+        switch (typeof value) {
+            case "number":
                 return some(value as number);
-            case 'boolean':
+            case "boolean":
                 return some(value ? 1 : 0);
-            case 'bigint':
+            case "bigint":
                 return some(Number(value));
-            case 'string':
-                {
-                    if (value === '') {
-                        return none();
-                    }
-
-                    const n = Number.parseFloat(value);
-                    if (!Number.isNaN(n)) {
-                        return some(n);
-                    }
-                    
+            case "string": {
+                if (value === "") {
                     return none();
                 }
+
+                const n = Number.parseFloat(value);
+                if (!Number.isNaN(n)) {
+                    return some(n);
+                }
+
+                return none();
+            }
             default:
                 return none();
         }
-    }  
+    }
 }
 
 export class Outputs extends ObjectMap {
@@ -393,8 +387,6 @@ export class Inputs extends ObjectMap {
     }
 }
 
-
-
 export class OrderedMap<K, V> extends Map<K, V> {
     #keys: K[] = [];
 
@@ -403,14 +395,14 @@ export class OrderedMap<K, V> extends Map<K, V> {
     }
 
     override values(): MapIterator<V> {
-        return Iterator.from(this.#keys.map(key => this.get(key) as V));
+        return Iterator.from(this.#keys.map((key) => this.get(key) as V));
     }
 
     override entries(): MapIterator<[K, V]> {
-        return Iterator.from(this.#keys.map(key => [key, this.get(key)] as [K, V]));
+        return Iterator.from(this.#keys.map((key) => [key, this.get(key)] as [K, V]));
     }
 
-    add(key: K, value: V) : boolean {
+    add(key: K, value: V): boolean {
         if (!this.has(key)) {
             this.#keys.push(key);
             super.set(key, value);
@@ -473,6 +465,6 @@ export class OrderedMap<K, V> extends Map<K, V> {
     }
 
     toJSON() {
-        return this.#keys.map(key => [key, this.get(key)]);
+        return this.#keys.map((key) => [key, this.get(key)]);
     }
 }

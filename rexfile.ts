@@ -1,9 +1,9 @@
 import { task } from "./lib/rex/src/file/mod.ts";
 
-task("test", _ => {
+task("test", (_) => {
     console.log("Hello, world!");
 });
 
-task("default", ["test"], _ => {
+task("default", ["test"], (_) => {
     console.log("Default task");
-});  
+});

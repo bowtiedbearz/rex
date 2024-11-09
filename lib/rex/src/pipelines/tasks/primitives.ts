@@ -1,5 +1,11 @@
-import { type Result, ok, fail } from "@bearz/functional";
-import { OrderedMap, ProxyMap, type Inputs, Outputs, type StringMap } from'../../collections/mod.ts';
+import { fail, ok, type Result } from "@bearz/functional";
+import {
+    type Inputs,
+    OrderedMap,
+    Outputs,
+    ProxyMap,
+    type StringMap,
+} from "../../collections/mod.ts";
 import type { ExecutionContext } from "../contexts.ts";
 import type { InputDescriptor, OutputDescriptor } from "../descriptors.ts";
 
@@ -16,9 +22,9 @@ export interface TaskState extends Record<string, unknown> {
 
     description: string;
 
-    inputs: Inputs
+    inputs: Inputs;
 
-    outputs: Outputs
+    outputs: Outputs;
 
     force: boolean;
 
@@ -32,7 +38,6 @@ export interface TaskState extends Record<string, unknown> {
 
     needs: string[];
 }
-
 
 export interface Task extends Record<string, unknown> {
     id: string;
@@ -68,7 +73,7 @@ export interface DelegateTask extends Task {
     run: RunDelegate;
 }
 
-export type PipelineStatus = 'success' | 'failure' | 'cancelled' | 'skipped';
+export type PipelineStatus = "success" | "failure" | "cancelled" | "skipped";
 
 export interface TaskDescriptor {
     id: string;
@@ -80,47 +85,47 @@ export interface TaskDescriptor {
 }
 
 export class TaskResult {
-    ouputs: Outputs
-    status: PipelineStatus
-    error?: Error
-    startedAt: Date
-    finishedAt: Date
+    ouputs: Outputs;
+    status: PipelineStatus;
+    error?: Error;
+    startedAt: Date;
+    finishedAt: Date;
 
     constructor() {
         this.ouputs = new Outputs();
-        this.status = 'success';
+        this.status = "success";
         this.error = undefined;
         this.startedAt = new Date();
         this.finishedAt = this.startedAt;
     }
 
-    start() : this {
+    start(): this {
         this.startedAt = new Date();
         return this;
     }
 
-    stop() : this {
+    stop(): this {
         this.finishedAt = new Date();
         return this;
     }
 
-    fail(err: Error) : this {
-        this.status = 'failure';
+    fail(err: Error): this {
+        this.status = "failure";
         this.error = err;
         return this;
     }
 
-    cancel() : this {
-        this.status = 'cancelled';
+    cancel(): this {
+        this.status = "cancelled";
         return this;
     }
 
-    skip() : this {
-        this.status = 'skipped';
+    skip(): this {
+        this.status = "skipped";
         return this;
     }
 
-    success(outputs?: Record<string, unknown>) : this {
+    success(outputs?: Record<string, unknown>): this {
         if (outputs) {
             this.ouputs.merge(outputs);
         }
@@ -128,8 +133,7 @@ export class TaskResult {
     }
 }
 
-
-function flatten(map: TaskMap, set: Task[]) : Result<Task[]> {
+function flatten(map: TaskMap, set: Task[]): Result<Task[]> {
     const results = new Array<Task>();
     for (const task of set) {
         if (!task) {
@@ -139,14 +143,14 @@ function flatten(map: TaskMap, set: Task[]) : Result<Task[]> {
         for (const dep of task.needs) {
             const depTask = map.get(dep);
             if (!depTask) {
-               return fail(new Error(`Task ${task.id} depends on missing task ${dep}`));
+                return fail(new Error(`Task ${task.id} depends on missing task ${dep}`));
             }
 
             const depResult = flatten(map, [depTask]);
-            if (depResult.isError)
+            if (depResult.isError) {
                 return depResult;
+            }
 
-            
             results.push(...depResult.unwrap());
             if (!results.includes(depTask)) {
                 results.push(depTask);
@@ -170,55 +174,54 @@ export class TaskMap extends OrderedMap<string, Task> {
         return map;
     }
 
-    missingDependencies(): Array<{task:Task, missing: string[]}> {
-        const missing = new Array<{task:Task, missing: string[]}>();
+    missingDependencies(): Array<{ task: Task; missing: string[] }> {
+        const missing = new Array<{ task: Task; missing: string[] }>();
         for (const task of this.values()) {
-            const missingDeps = task.needs.filter(dep => !this.has(dep));
+            const missingDeps = task.needs.filter((dep) => !this.has(dep));
             if (missingDeps.length > 0) {
-                missing.push({task, missing: missingDeps});
+                missing.push({ task, missing: missingDeps });
             }
         }
-        return missing
+        return missing;
     }
 
-    flatten(targets?: Task[]) : Result<Task[]> {
+    flatten(targets?: Task[]): Result<Task[]> {
         targets = targets ?? Array.from(this.values());
         return flatten(this, targets);
-    };
+    }
 
-
-    findCyclycalReferences() : Task[] {
-        const stack = new Set<Task>()
+    findCyclycalReferences(): Task[] {
+        const stack = new Set<Task>();
         const cycles = new Array<Task>();
         const resolve = (task: Task) => {
             if (stack.has(task)) {
                 return false;
             }
-    
+
             stack.add(task);
             for (const dep of task.needs) {
                 const depTask = this.get(dep);
                 if (!depTask) {
                     continue;
                 }
-    
-                if(!resolve(depTask))
+
+                if (!resolve(depTask)) {
                     return false;
+                }
             }
-    
+
             stack.delete(task);
-    
+
             return true;
         };
-    
+
         for (const task of this.values()) {
-            if (!resolve(task))
-            {
+            if (!resolve(task)) {
                 // cycle detected
                 cycles.push(task);
             }
         }
-    
+
         // no cycles detected
         return cycles;
     }
@@ -233,7 +236,7 @@ export class TaskRegistry extends ProxyMap<TaskDescriptor> {
         return map;
     }
 
-    register(task: TaskDescriptor) : void {
+    register(task: TaskDescriptor): void {
         if (this.has(task.id)) {
             throw new Error(`Task ${task.id} already exists`);
         }

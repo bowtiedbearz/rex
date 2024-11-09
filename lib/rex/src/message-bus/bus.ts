@@ -31,7 +31,6 @@ export class DefaultMessageBus {
     }
 }
 
-
 export function logLevelToString(level: LogLevel): string {
     switch (level) {
         case LogLevel.Trace:
