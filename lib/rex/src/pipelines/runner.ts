@@ -4,11 +4,14 @@ import { ExecutionContext } from "./contexts.ts";
 import { ObjectMap, Outputs, StringMap } from "../collections/mod.ts";
 import { PipelineWriter } from "@bearz/ci-env/writer";
 import { env } from "@bearz/env";
-import { TaskMap } from "./tasks/primitives.ts";
+import { DelegateTask, TaskMap } from "./tasks/primitives.ts";
 import { JobMap } from "./jobs/primitives.ts";
 import { DiscoveryPipeline, DiscoveryPipelineContext } from "./discovery_pipeline.ts";
 import { DefaultLoggingMessageBus, LoggingMessageBus } from "../message-bus/mod.ts";
 import { SequentialTaskPipeline, TaskPipeline, TasksPipelineContext } from "./tasks/pipeline.ts";
+import { registry } from "../file/mod.ts";
+import { fail, Result, ok } from "@bearz/functional";
+import { output, toError } from "./utils.ts";
 
 export interface RunnerOptions {
     file?: string;
@@ -19,6 +22,78 @@ export interface RunnerOptions {
     tasks?: boolean;
     jobs?: boolean;
 }
+
+const taskRegistry = registry();
+
+taskRegistry.set("delegate-task", {
+    id: "delegate-task",
+    description: "an inline task",
+    inputs: [{
+        name: "shell",
+        description: "The shell to use",
+        required: false,
+        type: 'string'
+    }],
+    outputs: [],
+    run: async (ctx) : Promise<Result<Outputs>>  => {
+        
+        const task = ctx.task as DelegateTask
+        if (task.run === undefined) 
+            return fail(new Error(`Task ${task.id} has no run function`));
+
+        try {
+            const res = task.run(ctx);
+            if (res instanceof Promise) {
+                const out = await res;
+                if (out instanceof Outputs) {
+                    return ok(out);
+                }
+    
+                return ok(output({}));
+            }
+    
+            if (res instanceof Outputs) {
+                return ok(res);
+            }
+    
+            return ok(output({}));
+        } catch(e) {
+            return fail(toError(e));
+        }
+    }
+})
+
+taskRegistry.set("shell-task", {
+    id: "shell-task",
+    description: "an inline task",
+    inputs: [],
+    outputs: [],
+    run: async (ctx) : Promise<Result<Outputs>>  => {
+        const task = ctx.task as DelegateTask
+        if (task.run === undefined) 
+            return fail(new Error(`Task ${task.id} has no run function`));
+
+        try {
+            const res = task.run(ctx);
+            if (res instanceof Promise) {
+                const out = await res;
+                if (out instanceof Outputs) {
+                    return ok(out);
+                }
+    
+                return ok(output({}));
+            }
+    
+            if (res instanceof Outputs) {
+                return ok(res);
+            }
+    
+            return ok(output({}));
+        } catch(e) {
+            return fail(toError(e));
+        }
+    }
+});
 
 export class Runner {
     constructor() {
@@ -96,11 +171,16 @@ export class Runner {
             switch (command) {
                 case "run":
                     {
-                        const tasksCtx  = Object.assign({}, ctx, {
+                        const tasksCtx : TasksPipelineContext  = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
                             jobs: res.jobs,
-                        });
+                            registry: registry(),
+                            results: [],
+                            status: 'success',
+                            bus: ctx.bus as LoggingMessageBus,
+                        
+                        }) as TasksPipelineContext;
 
                         console.log(tasksCtx.tasks);
 

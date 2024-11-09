@@ -10,7 +10,7 @@ export class TaskBuilder {
     constructor(task: Task, global: boolean = false) {
         this.#task = task;
         if (global) {
-            tasks()
+            tasks().set(task.id, task);
         }
     }
 
@@ -160,8 +160,17 @@ export function scriptTask() : ScriptTaskBuilder {
         uses: "shell-task",
         needs: needs,
         run: async (ctx: TaskContext) => {
+            const inputs = ctx.state.inputs;
+            let runtimeShell = shell;   
+            if (inputs.has('shell')) {
+                const s = inputs.string('shell');
+                if (s.isSome) {
+                    runtimeShell = s.unwrap();
+                }
+            }
+
             const o = await shells.script(script, {
-                shell: shell,
+                shell: runtimeShell,
                 cwd: ctx.state.cwd,
                 env: ctx.state.env.toObject(),
                 timeout: ctx.state.timeout

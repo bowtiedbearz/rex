@@ -1,5 +1,5 @@
 import type { LoggingMessageBus } from "../../message-bus/mod.ts";
-import { TaskResult, PipelineStatus, Task, TaskContext, TaskRegistry } from "./primitives.ts";
+import { TaskResult, PipelineStatus, Task, TaskContext, TaskRegistry, TaskMap } from "./primitives.ts";
 import { type Next, Pipeline, type RexMiddleware } from "../pipeline.ts";
 import { toError } from "../utils.ts";
 import { TaskCancelled, TaskSkipped, TaskCompleted, TaskFailed } from "./messages.ts";
@@ -235,7 +235,7 @@ export class TaskPipeline extends Pipeline<TaskResult, TaskPipelineContext> {
 }
 
 export interface TasksPipelineContext extends ExecutionContext {
-    tasks: Task[]
+    tasks: TaskMap,
     registry: TaskRegistry
     results: TaskResult[]
     status: PipelineStatus
@@ -254,7 +254,7 @@ async function runTasks<C>(context: C, next: Next) : Promise<void> {
     const ctx = context as TasksPipelineContext;
     const { tasks } = ctx;
 
-    for (const task of tasks) {
+    for (const [_, task] of tasks) {
         const result = new TaskResult();
 
         if (ctx.status === 'failure' || ctx.status === 'cancelled') {
