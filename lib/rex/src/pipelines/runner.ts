@@ -14,6 +14,8 @@ import {
     type TasksPipelineContext,
 } from "./tasks/pipeline.ts";
 import { registry } from "../file/mod.ts";
+import { rexWriter } from "../tui/writer.ts";
+import { consoleSink } from "../tui/message-sink.ts";
 
 export interface RunnerOptions {
     file?: string;
@@ -58,9 +60,7 @@ export class Runner {
             targets ??= ["default"];
 
             const bus = new DefaultLoggingMessageBus();
-            bus.addListener((message) => {
-                console.log(message);
-            });
+            bus.addListener(consoleSink);
 
             const ctx: ExecutionContext = {
                 services: new ObjectMap(),
@@ -69,7 +69,7 @@ export class Runner {
                 env: new StringMap(),
                 cwd: cwd,
                 outputs: new Outputs(),
-                writer: writer,
+                writer: rexWriter,
                 bus: bus,
                 signal: signal,
             };
@@ -106,8 +106,6 @@ export class Runner {
                             status: "success",
                             bus: ctx.bus as LoggingMessageBus,
                         }) as TasksPipelineContext;
-
-                        console.log(tasksCtx.tasks);
 
                         const pipeline = ctx.services.get(
                             "tasks-pipeline",

@@ -6,7 +6,6 @@ const __dirname = dirname(fromFileUrl(import.meta.url));
 const engDir = dirname(__dirname);
 const rootDir = dirname(engDir);
 const libDir = join(rootDir, "lib");
-console.log(libDir);
 
 async function isFile(path: string): Promise<boolean> {
     try {

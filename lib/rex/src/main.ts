@@ -13,8 +13,5 @@ const app = new Command()
     .command("run", runCommand);
 
 if (import.meta.main) {
-    console.log(Deno.args);
-
-    const o = await app.parse(Deno.args);
-    console.log(o);
+    await app.parse(Deno.args);
 }

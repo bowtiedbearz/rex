@@ -1,11 +1,11 @@
-import type { AnsiWriter } from "@bearz/ansi";
 import type { Outputs, ProxyMap, StringMap } from "../collections/mod.ts";
+import type { RexWriter } from "../tui/writer.ts";
 
 export interface Context extends Record<string, unknown> {
     signal: AbortSignal;
     env: StringMap;
     variables: StringMap;
-    writer: AnsiWriter;
+    writer: RexWriter;
     secrets: StringMap;
     services: ProxyMap<unknown>;
 }

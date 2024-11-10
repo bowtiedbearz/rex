@@ -111,7 +111,6 @@ export function usesTask(uses: string, id: string): TaskBuilder {
 export function task(id: string, needs: string[], rn: RunDelegate): TaskBuilder;
 export function task(id: string, fn: RunDelegate): TaskBuilder;
 export function task(): TaskBuilder {
-    console.log(arguments);
     const id = arguments[0];
     let fn = arguments[1];
     let needs: string[] = [];

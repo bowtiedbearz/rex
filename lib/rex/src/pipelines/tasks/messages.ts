@@ -1,5 +1,5 @@
 import { BaseMessage } from "../../message-bus/mod.ts";
-import type { Task, TaskMap, TaskState } from "./primitives.ts";
+import type { Task, TaskMap, TaskResult, TaskState } from "./primitives.ts";
 
 export class TaskStarted extends BaseMessage {
     constructor(public readonly task: TaskState) {
@@ -8,7 +8,7 @@ export class TaskStarted extends BaseMessage {
 }
 
 export class TaskCompleted extends BaseMessage {
-    constructor(public readonly task: TaskState) {
+    constructor(public readonly task: TaskState, public readonly result: TaskResult) {
         super("task:completed");
     }
 }

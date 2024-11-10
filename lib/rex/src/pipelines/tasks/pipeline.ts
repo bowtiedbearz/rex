@@ -9,7 +9,7 @@ import {
 } from "./primitives.ts";
 import { type Next, Pipeline } from "../pipeline.ts";
 import { toError } from "../utils.ts";
-import { TaskCancelled, TaskCompleted, TaskFailed, TaskSkipped } from "./messages.ts";
+import { TaskCancelled, TaskCompleted, TaskFailed, TaskSkipped, TaskStarted } from "./messages.ts";
 import type { ExecutionContext } from "../contexts.ts";
 import { underscore } from "@bearz/strings/underscore";
 import { Inputs, Outputs, StringMap } from "../../collections/mod.ts";
@@ -186,6 +186,8 @@ async function execute<C>(context: C, next: Next): Promise<void> {
             return;
         }
 
+        ctx.bus.send(new TaskStarted(ctx.state));
+
         const result = await descriptor.run(ctx);
         ctx.result.stop();
         if (result.isError) {
@@ -202,7 +204,7 @@ async function execute<C>(context: C, next: Next): Promise<void> {
 
         ctx.result.success();
         ctx.result.ouputs = result.unwrap();
-        ctx.bus.send(new TaskCompleted(ctx.state));
+        ctx.bus.send(new TaskCompleted(ctx.state, ctx.result));
     } finally {
         clearTimeout(handle);
         signal.removeEventListener("abort", listener);

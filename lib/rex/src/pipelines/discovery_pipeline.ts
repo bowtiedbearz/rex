@@ -56,8 +56,6 @@ async function rexfile<C>(context: C, next: Next): Promise<void> {
             file = await realPath(file);
         }
 
-        console.log(file);
-
         if (!await exists(file)) {
             file = join(cwd, ".rex", "tasks.ts");
         }
@@ -102,7 +100,7 @@ async function rexfile<C>(context: C, next: Next): Promise<void> {
         if (!mod.jobs) {
             if (globalJobs.size === 0) {
                 ctx.bus.debug(
-                    `No jobs found in ${file}.  Task file must export a variable called jobs is type JobMap.`,
+                    `No jobs found in ${file}.  Rexfile file must export a variable called jobs is type JobMap.`,
                 );
             } else {
                 for (const [key, value] of globalJobs.entries()) {
