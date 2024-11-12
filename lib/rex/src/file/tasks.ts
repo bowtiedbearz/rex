@@ -200,7 +200,7 @@ export function scriptTask(): ScriptTaskBuilder {
                 cwd: ctx.state.cwd,
             });
         },
-    });
+    }, true);
 }
 
 const taskRegistry = registry();

@@ -32,6 +32,7 @@
         "@bearz/dotenv": "jsr:@bearz/dotenv@^0.0.0",
         "@bearz/env": "jsr:@bearz/env@^0.0.0",
         "@bearz/exec": "jsr:@bearz/exec@^0.0.1",
+        "@bearz/fmt": "jsr:@bearz/fmt@^0.0.0",
         "@bearz/fs": "jsr:@bearz/fs@^0.0.0",
         "@bearz/functional": "jsr:@bearz/functional@^0.0.0",
         "@bearz/process": "jsr:@bearz/process@^0.0.0",

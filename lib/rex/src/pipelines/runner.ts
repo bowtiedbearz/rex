@@ -12,7 +12,7 @@ import {
     SequentialTaskPipeline,
     TaskPipeline,
     type TasksPipelineContext,
-} from "./tasks/pipeline.ts";
+} from "./tasks/pipelines.ts";
 import { registry } from "../file/mod.ts";
 import { rexWriter } from "../tui/writer.ts";
 import { consoleSink } from "../tui/message-sink.ts";
@@ -23,16 +23,16 @@ export interface RunnerOptions {
     command?: string;
     targets?: string[];
     timeout?: number;
-    tasks?: boolean;
-    jobs?: boolean;
+    runJobs?: boolean;
 }
 
 export class Runner {
     constructor() {
     }
 
-    async run(option: RunnerOptions) {
-        let { file, cwd, command, targets, timeout } = option;
+    async run(options: RunnerOptions) {
+        let { file, cwd, command, targets, timeout, } = options;
+        
 
         cwd ??= getCwd();
         file ??= join(cwd, "rexfile.ts");
@@ -58,6 +58,8 @@ export class Runner {
 
             command ??= "run";
             targets ??= ["default"];
+
+            console.log("targets", targets);
 
             const bus = new DefaultLoggingMessageBus();
             bus.addListener(consoleSink);
@@ -92,11 +94,12 @@ export class Runner {
             });
 
             const discoveryPipeline = new DiscoveryPipeline();
-            const res = await discoveryPipeline.run(discoveryContext);
+            const res = await discoveryPipeline.run(discoveryContext);           
 
             switch (command) {
                 case "run":
                     {
+                
                         const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,

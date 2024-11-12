@@ -9,7 +9,7 @@ import {
 } from "./primitives.ts";
 import { type Next, Pipeline } from "../pipeline.ts";
 import { toError } from "../utils.ts";
-import { TaskCancelled, TaskCompleted, TaskFailed, TaskSkipped, TaskStarted } from "./messages.ts";
+import { CyclicalTaskReferences, MissingDependencies, TaskCancelled, TaskCompleted, TaskFailed, TaskSkipped, TaskStarted } from "./messages.ts";
 import type { ExecutionContext } from "../contexts.ts";
 import { underscore } from "@bearz/strings/underscore";
 import { Inputs, Outputs, StringMap } from "../../collections/mod.ts";
@@ -193,6 +193,7 @@ async function execute<C>(context: C, next: Next): Promise<void> {
         if (result.isError) {
             ctx.result.stop();
             ctx.result.fail(result.unwrapError());
+            ctx.bus.send(new TaskFailed(ctx.state, result.unwrapError()));
             return;
         }
 
@@ -200,6 +201,7 @@ async function execute<C>(context: C, next: Next): Promise<void> {
             ctx.result.cancel();
             ctx.result.stop();
             ctx.bus.send(new TaskCancelled(ctx.state));
+            return;
         }
 
         ctx.result.success();
@@ -242,6 +244,7 @@ export interface TasksPipelineContext extends ExecutionContext {
     status: PipelineStatus;
     error?: Error;
     bus: LoggingMessageBus;
+    targets: string[];
 }
 
 export interface TasksSummary extends Record<string, unknown> {
@@ -253,8 +256,44 @@ export interface TasksSummary extends Record<string, unknown> {
 async function runTasks<C>(context: C, next: Next): Promise<void> {
     const ctx = context as TasksPipelineContext;
     const { tasks } = ctx;
+    const targets = ctx.targets;
 
-    for (const [_, task] of tasks) {
+    const cyclesRes = tasks.findCyclycalReferences();
+    if (cyclesRes.length > 0) {
+        ctx.bus.send(new CyclicalTaskReferences(cyclesRes));
+        ctx.status = "failure";
+        ctx.error = new Error(`Cyclical task references found: ${cyclesRes.map(o => o.id).join(", ")}`);
+    }
+
+    const missingDeps = tasks.missingDependencies();
+    if (missingDeps.length > 0) {
+        ctx.bus.send(new MissingDependencies(missingDeps));
+        ctx.status = "failure";
+        ctx.error = new Error("Tasks are missing dependencies");
+    }
+
+    const targetTasks : Task[] = [];
+    for (const target of targets) {
+        const task = tasks.get(target);
+        if (task) {
+            targetTasks.push(task);
+        } else {
+            ctx.status = "failure";
+            ctx.error = new Error(`Task not found: ${target}`);
+            return;
+        }
+    }
+
+    const flattenedResult = tasks.flatten(targetTasks);
+    if (flattenedResult.isError) {
+        ctx.status = "failure";
+        ctx.error = flattenedResult.unwrapError();
+        return;
+    }
+
+    const taskSet = flattenedResult.unwrap();
+
+    for (const task of taskSet) {
         const result = new TaskResult();
 
         if (ctx.status === "failure" || ctx.status === "cancelled") {

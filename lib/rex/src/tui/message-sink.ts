@@ -22,6 +22,23 @@ export function consoleSink(message: Message): void {
                 }
 
                 switch (message.level) {
+                    case LogLevel.Trace:
+                        if (logMessage.error) {
+                            rexWriter.trace(logMessage.error, logMessage.message, message.args);
+                        } else if (logMessage.message) {
+                            rexWriter.trace(logMessage.message, message.args);
+                        }
+
+                        return;
+
+                    case LogLevel.Fatal:
+                        if (logMessage.error) {
+                            rexWriter.error(logMessage.error, logMessage.message, message.args);
+                        } else if (logMessage.message) {
+                            rexWriter.error(logMessage.message, message.args);
+                        }
+
+                        return;
                     case LogLevel.Info:
                         console.log;
                         if (logMessage.message) {
@@ -45,7 +62,7 @@ export function consoleSink(message: Message): void {
                             rexWriter.warn(logMessage.message, message.args);
                         }
 
-                        break;
+                        return;
 
                     case LogLevel.Error:
                         if (logMessage.error) {
@@ -54,12 +71,11 @@ export function consoleSink(message: Message): void {
                             rexWriter.error(logMessage.message, message.args);
                         }
 
-                        break;
+                        return;
                 }
-                console.log(message.level, message.message, message.args);
             }
 
-            break;
+            return;
 
         case "task:started": {
             const msg = message as TaskStarted;
@@ -78,15 +94,16 @@ export function consoleSink(message: Message): void {
         case "task:failed": {
             const msg = message as TaskFailed;
             const name = msg.task.name ?? msg.task.id;
+            rexWriter.error(msg.error);
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
                 rexWriter.write(groupSymbol);
                 rexWriter.writeLine(`${name} ${red("failed")}`);
             } else if (AnsiSettings.current.mode === AnsiMode.None) {
-                rexWriter.error(`🢖🢖🢖🢖🢖 Task ${name} failed`);
+                rexWriter.error(`🢖🢖🢖🢖🢖 ${name} failed`);
             } else {
-                rexWriter.error(red(`🢖🢖🢖🢖🢖 Task ${name} failed`));
+                rexWriter.error(red(`🢖🢖🢖🢖🢖 ${name} failed`));
             }
-            rexWriter.error(msg.error);
+            
             rexWriter.endGroup();
             return;
         }
