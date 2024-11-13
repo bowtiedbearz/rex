@@ -9,6 +9,7 @@ export interface DeploymentPipelineContext extends TaskContext {
     bus: LoggingMessageBus;
     status: PipelineStatus;
     registry: TaskRegistry;
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export abstract class DeploymentPipelineMiddleware {
@@ -52,6 +53,7 @@ export interface DeploymentsPipelineContext extends ExecutionContext {
     error?: Error;
     bus: LoggingMessageBus;
     targets: string[];
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export interface DeploymentsSummary extends Record<string, unknown> {

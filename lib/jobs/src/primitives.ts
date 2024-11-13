@@ -4,6 +4,8 @@ import type { PipelineStatus, Task, TaskResult } from "@rex/tasks";
 
 export interface JobContext extends ExecutionContext {
     state: JobState;
+
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export interface JobState extends Record<string, unknown> {
@@ -43,7 +45,7 @@ export interface Job extends Record<string, unknown> {
 }
 
 export class JobResult {
-    ouputs: Outputs;
+    outputs: Outputs;
     status: PipelineStatus;
     error?: Error;
     startedAt: Date;
@@ -53,7 +55,7 @@ export class JobResult {
 
     constructor(id: string) {
         this.id = id;
-        this.ouputs = new Outputs();
+        this.outputs = new Outputs();
         this.status = "success";
         this.error = undefined;
         this.startedAt = new Date();
@@ -89,7 +91,7 @@ export class JobResult {
 
     success(outputs?: Record<string, unknown>): this {
         if (outputs) {
-            this.ouputs.merge(outputs);
+            this.outputs.merge(outputs);
         }
         return this;
     }

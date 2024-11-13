@@ -69,9 +69,10 @@ export function handleArguments(
         }
     }
 }
+export const groupSymbol = "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m\x1b[38;2;212;0;255m\x16\x1b[39m"
 
 
-export const groupSymbol =
+export const jobSymbol =
     "\x1b[38;2;255;0;0m❯\x1b[38;2;208;0;35m❯\x1b[38;2;160;0;70m❯\x1b[38;2;113;0;105m❯\x1b[38;2;65;0;140m❯\x1b[39m";
 
 
@@ -229,7 +230,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
                 this.writeLine("::endgroup::");
                 return this;
             default:
-                return this.writeLine()
+                return this;
         }
     }
 

@@ -13,26 +13,26 @@ import { AnsiMode, AnsiSettings, rgb24 } from "@bearz/ansi";
 
 export function deployConsoleSink(message: Message): void {
     switch(message.kind) {
-        case "job:missing-dependencies": {
+        case "deployment:missing-dependencies": {
             const msg = message as MissingDeploymentDependencies;
-            writer.error(`Missing the following job dependencies ${msg.deployments.join(",")}`)
+            writer.error(`Missing the following deployment dependencies ${msg.deployments.join(",")}`)
             return;
         }
 
-        case "job:cyclical-references": {
+        case "deployment:cyclical-references": {
             const msg = message as CyclicalDeploymentReferences
-            writer.error(`Found job cyclical references ${msg.deployments.join(",")}`)
+            writer.error(`Found deployment cyclical references ${msg.deployments.join(",")}`)
             return;
         }
 
-        case "job:started": {
+        case "deployment:started": {
             const msg = message as DeploymentStarted;
             const name = msg.state.name ?? msg.state.id;
             writer.startGroup(`${name}`);
             return;
         }
 
-        case "job:skipped": {
+        case "deployment:skipped": {
             const msg = message as DeploymentSkipped;
             const name = msg.state.name ?? msg.state.id;
             writer.skipGroup(name);

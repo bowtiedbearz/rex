@@ -21,6 +21,7 @@ export interface DeploymentState extends TaskState {
 export interface DeploymentContext extends ExecutionContext {
     state: DeploymentState;
     targetEnv: string;
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export interface Deployment extends Record<string, unknown> {
@@ -54,7 +55,7 @@ export interface Deployment extends Record<string, unknown> {
 }
 
 export class DeploymentResult {
-    ouputs: Outputs;
+    outputs: Outputs;
     status: PipelineStatus;
     error?: Error;
     startedAt: Date;
@@ -64,7 +65,7 @@ export class DeploymentResult {
 
     constructor(id: string) {
         this.id = id;
-        this.ouputs = new Outputs();
+        this.outputs = new Outputs();
         this.status = "success";
         this.error = undefined;
         this.startedAt = new Date();
@@ -100,7 +101,7 @@ export class DeploymentResult {
 
     success(outputs?: Record<string, unknown>): this {
         if (outputs) {
-            this.ouputs.merge(outputs);
+            this.outputs.merge(outputs);
         }
         return this;
     }

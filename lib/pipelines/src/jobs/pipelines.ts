@@ -1,20 +1,22 @@
 import type { ExecutionContext, LoggingMessageBus } from "@rex/primitives";
-import { type TaskContext, type TaskResult, type Task, type PipelineStatus, type TaskRegistry, toError, type TaskMap } from "@rex/tasks";
+import { type PipelineStatus, type TaskRegistry, toError, } from "@rex/tasks";
+import type { JobContext, Job, JobMap, JobResult } from "@rex/jobs";
 import { type Next, Pipeline } from "../pipeline.ts";
 
-export interface JobPipelineContext extends TaskContext {
-    result: TaskResult;
-    task: Task;
+export interface JobPipelineContext extends JobContext {
+    result: JobResult;
+    job: Job;
     bus: LoggingMessageBus;
     status: PipelineStatus;
     registry: TaskRegistry;
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export abstract class JobPipelineMiddleware {
     abstract run(ctx: JobPipelineContext, next: Next): Promise<void>;
 }
 
-export class JobPipeline extends Pipeline<TaskResult, JobPipelineContext> {
+export class JobPipeline extends Pipeline<JobResult, JobPipelineContext> {
     constructor() {
         super();
     }
@@ -27,7 +29,7 @@ export class JobPipeline extends Pipeline<TaskResult, JobPipelineContext> {
         return super.use(middleware);
     }
 
-    override async run(ctx: JobPipelineContext): Promise<TaskResult> {
+    override async run(ctx: JobPipelineContext): Promise<JobResult> {
         try {
             await this.pipe(ctx);
             return ctx.result;
@@ -43,17 +45,18 @@ export class JobPipeline extends Pipeline<TaskResult, JobPipelineContext> {
 
 
 export interface JobsPipelineContext extends ExecutionContext {
-    tasks: TaskMap;
+    jobs: JobMap;
     registry: TaskRegistry;
-    results: TaskResult[];
+    results: JobResult[];
     status: PipelineStatus;
     error?: Error;
     bus: LoggingMessageBus;
     targets: string[];
+    environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
 export interface JobsSummary extends Record<string, unknown> {
-    results: TaskResult[];
+    results: JobResult[];
     error?: Error;
     status: PipelineStatus;
 }

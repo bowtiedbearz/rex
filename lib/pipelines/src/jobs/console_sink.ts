@@ -1,4 +1,4 @@
-import { groupSymbol, writer } from "../ci/writer.ts";
+import { jobSymbol, writer } from "../ci/writer.ts";
 import type { Message } from "@rex/primitives";
 import type {
     JobCompleted,
@@ -8,8 +8,9 @@ import type {
     MissingJobDependencies,
     CyclicalJobReferences
 } from "./messages.ts";
-import { green, red } from "@bearz/ansi/styles";
-import { AnsiMode, AnsiSettings, rgb24 } from "@bearz/ansi";
+import { cyan, green, red } from "@bearz/ansi/styles";
+import { AnsiMode, AnsiSettings } from "@bearz/ansi";
+
 
 export function jobsConsoleSink(message: Message): void {
     switch(message.kind) {
@@ -28,7 +29,14 @@ export function jobsConsoleSink(message: Message): void {
         case "job:started": {
             const msg = message as JobStarted;
             const name = msg.job.name ?? msg.job.id;
-            writer.startGroup(`${name}`);
+            if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
+                writer.write(jobSymbol);
+                writer.writeLine(` ${name} `);
+            } else if (AnsiSettings.current.stdout) {
+                writer.write(cyan(`❯❯❯❯❯ ${name}`));
+            } else {
+                writer.writeLine(`❯❯❯❯❯ ${name}`);
+            }
             return;
         }
 
@@ -44,7 +52,7 @@ export function jobsConsoleSink(message: Message): void {
             const name = msg.job.name ?? msg.job.id;
             writer.error(msg.error);
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                writer.write(groupSymbol);
+                writer.write(jobSymbol);
                 writer.writeLine(`${name} ${red("failed")}`);
             } else if (AnsiSettings.current.mode === AnsiMode.None) {
                 writer.error(`❯❯❯❯❯ ${name} failed`);
@@ -65,9 +73,9 @@ export function jobsConsoleSink(message: Message): void {
 
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
                 // rexWriter.write(groupSymbol)
-                writer.write(groupSymbol);
+                writer.write(jobSymbol);
                 writer.writeLine(
-                    ` ${rgb24(msg.job.name ?? msg.job.id, 0xb400ff)} completed sucessfully in ${
+                    ` ${msg.job.name ?? msg.job.id} completed sucessfully in ${
                         green(m.toString())
                     }m ${green(s.toString())}s ${green(ms.toString())}ms`,
                 );

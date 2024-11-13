@@ -18,14 +18,15 @@ import {
 import { underscore } from "@bearz/strings/underscore";
 import { type Task, TaskResult } from "@rex/tasks";
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
+import { setPipelineVar } from "../ci/vars.ts";
 
 export class ApplyTaskContext extends TaskPipelineMiddleware {
     override async run(ctx: TaskPipelineContext, next: Next): Promise<void> {
         const meta = ctx.state;
         const task = ctx.task;
-
         try {
             meta.env.merge(ctx.env);
+            
 
             if (typeof task.cwd === "string") {
                 meta.cwd = task.cwd;
@@ -176,7 +177,6 @@ export class TaskExecution extends TaskPipelineMiddleware {
 
         try {
             ctx.result.start();
-
             if (ctx.signal.aborted) {
                 ctx.result.cancel();
                 ctx.result.stop();
@@ -203,7 +203,7 @@ export class TaskExecution extends TaskPipelineMiddleware {
             }
 
             ctx.result.success();
-            ctx.result.ouputs = result.unwrap();
+            ctx.result.outputs = result.unwrap();
             ctx.bus.send(new TaskCompleted(ctx.state, ctx.result));
         } finally {
             clearTimeout(handle);
@@ -220,6 +220,7 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
         const { tasks } = ctx;
         const targets = ctx.targets;
 
+        ctx.writer.debug(`task targets: ${targets.join(", ")}`);
         const cyclesRes = tasks.findCyclycalReferences();
         if (cyclesRes.length > 0) {
             ctx.bus.send(new CyclicalTaskReferences(cyclesRes));
@@ -288,6 +289,7 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
                 task,
                 status: "success",
                 writer: ctx.writer,
+                environmentName: ctx.environmentName,
                 state: {
                     id: task.id,
                     uses: task.uses,
@@ -304,7 +306,7 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
                 },
             };
 
-            const taskPipeline = ctx.services.get("task-pipeline") as TaskPipeline;
+            const taskPipeline = ctx.services.get("TaskPipeline") as TaskPipeline;
             if (!taskPipeline) {
                 ctx.error = new Error(`Service not found: task-pipeline`);
                 ctx.bus.error(ctx.error);
@@ -313,6 +315,48 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
             }
         
             const r = await taskPipeline.run(nextContext);
+
+            const normalized = underscore(task.id.replace(/:/g, "_"));
+            ctx.outputs.set(`task.${normalized}`, r.outputs);
+            ctx.outputs.set(normalized, r.outputs);
+
+            for(const [key, value] of nextContext.secrets) {
+                if (ctx.secrets.has(key)) {
+                    const old = ctx.secrets.get(key);
+                    if (old !== value) {
+                        ctx.writer.debug(`Secret ${key} has changed in task ${task.id}`);
+                        ctx.secrets.set(key, value);
+                        ctx.writer.secretMasker.add(value)
+                        const envName = underscore(key, { screaming: true });
+                        ctx.env.set(envName, value);
+                        setPipelineVar(envName, value, { secret: true });
+                    }
+                } else {
+                    ctx.writer.debug(`Secret ${key} was added in task ${task.id}`);
+                    ctx.secrets.set(key, value);
+                    ctx.writer.secretMasker.add(value)
+                    const envName = underscore(key, { screaming: true });
+                    ctx.env.set(envName, value);
+                    setPipelineVar(envName, value, { secret: true });
+                }
+            }
+
+            for(const [key, value] of nextContext.env) {
+                if (ctx.env.has(key)) {
+                    
+                    const old = ctx.env.get(key);
+                    if (old !== value) {
+                        ctx.writer.debug(`Env ${key} has changed in task ${task.id}`);
+                        ctx.env.set(key, value);
+                        setPipelineVar(key, value);
+                    }
+                } else {
+                    ctx.writer.debug(`Env ${key} has changed in task ${task.id}`);
+                    ctx.env.set(key, value);
+                    setPipelineVar(key, value);
+                }
+            }
+
             ctx.results.push(r);
             if (ctx.status !== "failure") {
                 if (r.status === "failure") {

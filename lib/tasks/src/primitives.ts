@@ -38,6 +38,8 @@ export interface TaskState extends Record<string, unknown> {
 
 export interface TaskContext extends ExecutionContext {
     state: TaskState;
+
+    environmentName: 'production' | 'staging' | 'development' | 'test' | 'local' | string;
 }
 
 export interface Task extends Record<string, unknown> {
@@ -87,7 +89,7 @@ export interface TaskDescriptor {
 
 export class TaskResult {
     id: string;
-    ouputs: Outputs;
+    outputs: Outputs;
     status: PipelineStatus;
     error?: Error;
     startedAt: Date;
@@ -95,7 +97,7 @@ export class TaskResult {
 
     constructor(id: string) {
         this.id = id;
-        this.ouputs = new Outputs();
+        this.outputs = new Outputs();
         this.status = "success";
         this.error = undefined;
         this.startedAt = new Date();
@@ -130,7 +132,7 @@ export class TaskResult {
 
     success(outputs?: Record<string, unknown>): this {
         if (outputs) {
-            this.ouputs.merge(outputs);
+            this.outputs.merge(outputs);
         }
         return this;
     }
