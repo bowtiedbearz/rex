@@ -1,6 +1,6 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
 import { REX_DEPLOYMENTS, REX_DEPLOYMENT_REGISTRY } from "./globals.ts";
-import { output, toError } from "@rex/tasks";
+import { output, TaskMap, toError, REX_TASKS, type Task } from "@rex/tasks";
 import type { Deployment, DeploymentContext, DeploymentMap, Deploy, DelegateDeployment } from "./primitives.ts";
 import { type Result, fail, ok } from "@bearz/functional";
 
@@ -20,6 +20,33 @@ export class DeploymentBuilder {
 
     description(description: string): this {
         this.#deployment.description = description;
+        return this;
+    }
+
+    before(fn: (map: TaskMap, add: (id: string) => void, get: (id: string) => Task | undefined) => void): this {
+        return this.tasks('before:deploy', fn);
+    }
+
+    after(fn: (map: TaskMap, add: (id: string) => void, get: (id: string) => Task | undefined) => void): this {
+        return this.tasks('after:deploy', fn);
+    }
+
+    tasks(event: string, fn: (map: TaskMap, add: (id: string) => void, get: (id: string) => Task | undefined) => void): this {
+        const map = new TaskMap();
+        const get = (id: string) => REX_TASKS.get(id);
+        const add = (id: string) => {
+            const task = get(id);
+            if (!task) {
+                throw new Error(`Task ${id} not found`);
+            }
+            map.set(id, task);
+        };
+
+        fn(map, add, get);
+
+        this.#deployment.hooks[event] = map.values().toArray();
+
+
         return this;
     }
 
@@ -92,10 +119,8 @@ export class DeploymentBuilder {
     }
 }
 
-
-
-export function deploy(id: string, needs: string[], rn: Deploy, tasks?: DeploymentMap): DeploymentBuilder;
-export function deploy(id: string, fn: Deploy, tasks?: DeploymentMap): DeploymentBuilder;
+export function deploy(id: string, needs: string[], rn: Deploy, map?: DeploymentMap): DeploymentBuilder;
+export function deploy(id: string, fn: Deploy, map?: DeploymentMap): DeploymentBuilder;
 export function deploy(): DeploymentBuilder {
     const id = arguments[0];
     let fn = arguments[1];
@@ -115,7 +140,7 @@ export function deploy(): DeploymentBuilder {
 
     const task: DelegateDeployment = {
         id: id,
-        uses: "delegate-task",
+        uses: "delegate-deployment",
         name: id,
         needs: needs,
         run: fn,
@@ -130,24 +155,35 @@ export function deploy(): DeploymentBuilder {
 
 
 const taskRegistry = REX_DEPLOYMENT_REGISTRY;
-taskRegistry.set("delegate-task", {
-    id: "delegate-task",
-    description: "an inline task",
-    inputs: [{
-        name: "shell",
-        description: "The shell to use",
-        required: false,
-        type: "string",
-    }],
+taskRegistry.set("delegate-deployment", {
+    id: "delegate-deployment",
+    description: "A deployment task using inline code",
+    inputs: [],
     outputs: [],
+    events: ["before:deploy", "after:deploy"],
     run: async (ctx: DeploymentContext): Promise<Result<Outputs>> => {
-        const task = ctx.task as DelegateDeployment;
+        const task = ctx.deployment as DelegateDeployment;
         if (task.run === undefined) {
             return fail(new Error(`Task ${task.id} has no run function`));
         }
 
         try {
+            if (ctx.events["before:deploy"]) {
+                const handler = ctx.events["before:deploy"];
+                const r = await handler(ctx);
+                if (r.error || r.status === 'failure' || r.status === 'cancelled') {
+                    return fail(r.error ?? new Error('Deployment failed from before:deploy tasks'));
+                }
+            }
+
             const res = task.run(ctx);
+            if (ctx.events['after:deploy']) {
+                const handler = ctx.events['after:deploy'];
+                const r = await handler(ctx);
+                if (r.error || r.status === 'failure' || r.status === 'cancelled') {
+                    return fail(r.error ?? new Error('Deployment failed from after:deploy tasks'));
+                }
+            }
             if (res instanceof Promise) {
                 const out = await res;
                 if (out instanceof Outputs) {

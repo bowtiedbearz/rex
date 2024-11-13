@@ -65,15 +65,22 @@ export class JobBuilder {
     /**
      * Adds tasks to the job in order.
      * @param fn A function that takes a TaskMap and adds tasks to it. 
-     * The first argument is the TaskMap to add tasks to. The second argument
-     * is a function that takes a task id and returns the task 
-     * from the global tasks.
+     * The first argument is the TaskMap to add tasks to. 
+     * The second argument is a function adds a task to the TaskMap by id.
+     * The third argument is a function that gets a task by id.
      * @returns 
      */
-    tasks(fn: (map: TaskMap, get: (id: string) => Task | undefined) => void) : this {
+    tasks(fn: (map: TaskMap, add: (id: string)  => void, get: (id: string) => Task | undefined) => void) : this {
         const map = new TaskMap();
         const get = (id: string) => REX_TASKS.get(id);
-        fn(map, get);
+        const add = (id: string) => {
+            const task = get(id);
+            if (!task) {
+                throw new Error(`Task ${id} not found`);
+            }
+            map.set(id, task);
+        };
+        fn(map, add, get);
         this.#job.tasks.push(...map.values());
         return this;
     }

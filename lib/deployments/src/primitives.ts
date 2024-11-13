@@ -2,8 +2,7 @@
 
 import { type Result, ok, fail } from "@bearz/functional";
 import { OrderedMap, Outputs, ProxyMap, type ExecutionContext, type InputDescriptor, type OutputDescriptor, type Inputs, type StringMap } from "@rex/primitives";
-import type { PipelineStatus, TaskResult, TaskState } from "@rex/tasks";
-
+import type { PipelineStatus, Task, TaskResult, TaskState } from "@rex/tasks";
 
 export interface DeploymentState extends TaskState {
 
@@ -20,7 +19,7 @@ export interface DeploymentState extends TaskState {
 
 export interface DeploymentContext extends ExecutionContext {
     state: DeploymentState;
-    targetEnv: string;
+    events: Record<string | symbol, DeploymentEventHandler>
     environmentName: 'development' | 'staging' | 'production' | 'test' | 'local' | string;
 }
 
@@ -48,9 +47,9 @@ export interface Deployment extends Record<string, unknown> {
     needs: string[];
 
     hooks: {
-        'before:deploy': string[];
-        'after:deploy': string[];
-        [key: string]: string[];
+        'before:deploy': Task[];
+        'after:deploy': Task[];
+        [key: string]: Task[];
     }
 }
 
@@ -117,12 +116,21 @@ export interface DelegateDeployment extends Deployment {
     run: Deploy
 }
 
+export interface DeploymentEventResult extends Record<string | symbol, unknown> {
+    status: PipelineStatus;
+    error?: Error;
+    results: TaskResult[];
+} 
+
+export type DeploymentEventHandler = (ctx: DeploymentContext) => Promise<DeploymentEventResult>
+
 export interface DeploymentDescriptor {
     id: string;
     import?: string;
     description?: string;
     inputs: InputDescriptor[];
     outputs: OutputDescriptor[];
+    events: string[],
     run(ctx: DeploymentContext): Promise<Result<Outputs>>;
 }
 

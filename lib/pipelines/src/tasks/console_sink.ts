@@ -10,7 +10,7 @@ import type {
     MissingTaskDependencies
 } from "./messages.ts";
 import { green, red } from "@bearz/ansi/styles";
-import { AnsiMode, AnsiSettings, rgb24 } from "@bearz/ansi";
+import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 
 export function tasksConsoleSink(message: Message): void {
     switch (message.kind) {
@@ -131,7 +131,7 @@ export function tasksConsoleSink(message: Message): void {
                 // rexWriter.write(groupSymbol)
                 writer.write(groupSymbol);
                 writer.writeLine(
-                    ` ${rgb24(msg.task.name ?? msg.task.id, 0xb400ff)} completed sucessfully in ${
+                    ` ${msg.task.name} completed sucessfully in ${
                         green(m.toString())
                     }m ${green(s.toString())}s ${green(ms.toString())}ms`,
                 );

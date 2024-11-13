@@ -76,6 +76,9 @@ export const jobSymbol =
     "\x1b[38;2;255;0;0m❯\x1b[38;2;208;0;35m❯\x1b[38;2;160;0;70m❯\x1b[38;2;113;0;105m❯\x1b[38;2;65;0;140m❯\x1b[39m";
 
 
+export const deploySymbol = "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;54;51;204m❯\x1b[39m\x1b[38;2;48;102;153m❯\x1b[39m\x1b[38;2;42;153;102m❯\x1b[39m\x1b[38;2;36;204;51m❯\x1b[39m\x1b[38;2;30;255;0m\x16\x1b[39m"
+
+
 export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
     
     
@@ -84,6 +87,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
     }
 
     setLogLevel(level: LogLevel): this {
+     
         switch(level) {
             case LogLevel.Debug:
                 this.level = AnsiLogLevel.Debug;
@@ -308,7 +312,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
      */
     override info(message: string, ...args: unknown[]): this;
     override info(): this {
-        if (this.level < AnsiLogLevel.Debug) {
+        if (this.level < AnsiLogLevel.Information) {
             return this;
         }
 
@@ -367,7 +371,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
      */
     override debug(message: string, ...args: unknown[]): this;
     override debug(): this {
-        if (this.level < AnsiLogLevel.Debug) {
+        if (this.level < AnsiLogLevel.Information) {
             return this;
         }
 
@@ -413,10 +417,6 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
      */
     fatal(message: string, ...args: unknown[]): this;
     fatal(): this {
-        if (this.level < AnsiLogLevel.Error) {
-            return this;
-        }
-
         const { msg, stack } = handleArguments(arguments);
         switch (CI_DRIVER) {
             case "azdo":
@@ -466,7 +466,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
      */
     override error(message: string, ...args: unknown[]): this;
     override error(): this {
-        if (this.level < AnsiLogLevel.Error) {
+        if (this.level < AnsiLogLevel.Critical) {
             return this;
         }
 
@@ -519,7 +519,7 @@ export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {
      */
     override warn(message: string, ...args: unknown[]): this;
     override warn(): this {
-        if (this.level < AnsiLogLevel.Warning) {
+        if (this.level < AnsiLogLevel.Error) {
             return this;
         }
 

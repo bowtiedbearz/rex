@@ -1,4 +1,4 @@
-import { groupSymbol, writer } from "../ci/writer.ts";
+import { deploySymbol, writer } from "../ci/writer.ts";
 import type { Message } from "@rex/primitives";
 import type {
     DeploymentCompleted,
@@ -8,8 +8,8 @@ import type {
     MissingDeploymentDependencies,
     CyclicalDeploymentReferences
 } from "./messages.ts";
-import { green, red } from "@bearz/ansi/styles";
-import { AnsiMode, AnsiSettings, rgb24 } from "@bearz/ansi";
+import { cyan, green, red } from "@bearz/ansi/styles";
+import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 
 export function deployConsoleSink(message: Message): void {
     switch(message.kind) {
@@ -28,14 +28,28 @@ export function deployConsoleSink(message: Message): void {
         case "deployment:started": {
             const msg = message as DeploymentStarted;
             const name = msg.state.name ?? msg.state.id;
-            writer.startGroup(`${name}`);
+            if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
+                writer.write(deploySymbol);
+                writer.writeLine(` 🚀 ${name} `);
+            } else if (AnsiSettings.current.stdout) {
+                writer.write(cyan(`❯❯❯❯❯ ${name}`));
+            } else {
+                writer.writeLine(`❯❯❯❯❯ ${name}`);
+            }
             return;
         }
 
         case "deployment:skipped": {
             const msg = message as DeploymentSkipped;
             const name = msg.state.name ?? msg.state.id;
-            writer.skipGroup(name);
+            if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
+                writer.write(deploySymbol);
+                writer.writeLine(` 🚀 ${name} (Skipped)`);
+            } else if (AnsiSettings.current.stdout) {
+                writer.write(cyan(`❯❯❯❯❯ ${name} (Skipped)`));
+            } else {
+                writer.writeLine(`❯❯❯❯❯ ${name} (Skipped)`);
+            }
             return;
         }
 
@@ -44,8 +58,8 @@ export function deployConsoleSink(message: Message): void {
             const name = msg.state.name ?? msg.state.id;
             writer.error(msg.error);
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                writer.write(groupSymbol);
-                writer.writeLine(`${name} ${red("failed")}`);
+                writer.write(deploySymbol);
+                writer.writeLine(` 🚀 ${name} ${red("failed")}`);
             } else if (AnsiSettings.current.mode === AnsiMode.None) {
                 writer.error(`❯❯❯❯❯ ${name} failed`);
             } else {
@@ -64,10 +78,10 @@ export function deployConsoleSink(message: Message): void {
             const m = Math.floor(duration / 60000) % 60;
 
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                // rexWriter.write(groupSymbol)
-                writer.write(groupSymbol);
+                // rexWriter.write(deploySymbol)
+                writer.write(deploySymbol);
                 writer.writeLine(
-                    ` ${rgb24(msg.state.name ?? msg.state.id, 0xb400ff)} completed sucessfully in ${
+                    ` 🚀 ${msg.state.name} completed sucessfully in ${
                         green(m.toString())
                     }m ${green(s.toString())}s ${green(ms.toString())}ms`,
                 );

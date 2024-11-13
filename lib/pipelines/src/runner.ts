@@ -1,7 +1,7 @@
 import { cwd as getCwd, exit } from "@bearz/process";
 import { join } from "@std/path";
 import { writer } from "./ci/writer.ts";
-import { type ExecutionContext, Outputs, StringMap, ObjectMap, LogLevel } from "@rex/primitives";
+import { type ExecutionContext, Outputs, StringMap, ObjectMap, LogLevel, Inputs } from "@rex/primitives";
 import { DefaultLoggingMessageBus } from "./bus.ts";
 import { tasksConsoleSink } from "./tasks/console_sink.ts";
 import { jobsConsoleSink } from "./jobs/console_sink.ts";
@@ -11,16 +11,17 @@ import { env } from "@bearz/env";
 import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipelines.ts";
 import { TaskMap, REX_TASKS_REGISTRY } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
-import { DeploymentMap } from "@rex/deployments";
+import { DeploymentMap, DeploymentResult, REX_DEPLOYMENT_REGISTRY } from "@rex/deployments";
 import { RexfileDiscovery } from "./discovery/middlewares.ts";
 import { ApplyTaskContext, SequentialTaskExecution, TaskExecution } from "./tasks/middlewares.ts";
 import { type JobsPipelineContext, SequentialJobsPipeline } from "./jobs/mod.ts";
 import { ApplyJobContext, JobsExcution, RunJob } from "./jobs/middleware.ts";
 import { JobPipeline } from "./jobs/pipelines.ts";
-import { DeploymentPipeline } from "./deployments/pipelines.ts";
+import { DeploymentPipeline, type DeploymentPipelineContext } from "./deployments/pipelines.ts";
 import { parse } from "@bearz/dotenv"
 import { load } from "@bearz/dotenv/load"
 import { readTextFile } from "@bearz/fs";
+import { ApplyDeploymentContext, RunDeployment } from "./deployments/middleware.ts";
 
 
 export interface RunnerOptions {
@@ -133,6 +134,7 @@ export class Runner {
             const discoveryPipeline = new DiscoveryPipeline();
             discoveryPipeline.use(new RexfileDiscovery());
             const taskPipeline = new TaskPipeline();
+            // first will execute the last.
             taskPipeline.use(new TaskExecution());
             taskPipeline.use(new ApplyTaskContext());
 
@@ -147,6 +149,8 @@ export class Runner {
             jobPipeline.use(new ApplyJobContext());
 
             const deploymentPipeline = new DeploymentPipeline();
+            deploymentPipeline.use(new RunDeployment())
+            deploymentPipeline.use(new ApplyDeploymentContext())
 
 
             ctx.services.set("TasksPipeline", tasksPipeline);
@@ -243,7 +247,79 @@ export class Runner {
                     for (const [key, _] of res.jobs.entries()) {
                         writer.writeLine(`  ${key}`);
                     }
+                    writer.writeLine("Deployments:");
+                    for (const [key, _] of res.deployments.entries()) {
+                        writer.writeLine(`  ${key}`);
+                    }
                     break;
+                case "deploy":
+                    {
+                        if (targets.length > 1) {
+                            writer.error("Deploy command does not support multiple targets yet.");
+                            exit(1);
+                        }
+                        
+                        const deployment = res.deployments.get(targets[0]);
+                        if (!deployment) {
+                            writer.error(`Deployment ${targets[0]} not found`);
+                            exit(1);
+                            return;
+                        }
+
+                        if (deployment.needs.length > 0) {
+                            writer.warn(`Deployment needs are are not supported yet`);
+                        }
+
+                        const deploymentsCtx: DeploymentPipelineContext =  {
+                            deployment,
+                            tasksRegistry: REX_TASKS_REGISTRY,
+                            bus,
+                            writer,
+                            status: "success",
+                            variables: new ObjectMap(),
+                            services: ctx.services,
+                            cwd: ctx.cwd,
+                            deploymentsRegistry: REX_DEPLOYMENT_REGISTRY,
+                            outputs: ctx.outputs,
+                            secrets: ctx.secrets,
+                            env: ctx.env,
+                            environmentName: options.context ?? "local",
+                            signal: ctx.signal,
+                            events: {},
+                            result: new DeploymentResult(deployment.id),
+                            state: {
+                                status: "success",
+                                error: undefined,
+                                id: deployment.id,
+                                name: deployment.name ?? deployment.id,
+                                description: deployment.description ?? "",
+                                cwd: ctx.cwd,
+                                outputs: new Outputs(),
+                                env: new StringMap(),
+                                deploy: true,
+                                force: false,
+                                needs: deployment.needs,
+                                if: true,
+                                timeout: 0,
+                                inputs: new Inputs(),
+                                uses: deployment.uses,
+                            }
+                        }
+
+                        const results = await deploymentPipeline.run(deploymentsCtx);
+                        if (results.error) {
+                            writer.error(results.error);
+                            exit(1);
+                        }
+
+                        if (results.status === "failure") {
+                            writer.error("Pipeline failed");
+                            exit(1);
+                        }
+                        exit(0);
+                    }
+                    break;
+
                 default:
                     writer.error(`Unknown command: ${command}`);
                     exit(1);
