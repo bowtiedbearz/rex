@@ -1,0 +1,8 @@
+{
+    "name": "@rex/tasks-scripts",
+    "description": "tasks-scripts module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts"
+    }
+}
