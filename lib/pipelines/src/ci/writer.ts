@@ -72,7 +72,7 @@ export function handleArguments(
 
 
 export const groupSymbol =
-    "\x1b[38;2;255;0;0m❯\x1b[38;2;208;0;35m❯\x1b[38;2;160;0;70m❯[38;2;113;0;105m❯\x1b[38;2;65;0;140m❯\x1b[39m";
+    "\x1b[38;2;255;0;0m❯\x1b[38;2;208;0;35m❯\x1b[38;2;160;0;70m❯\x1b[38;2;113;0;105m❯\x1b[38;2;65;0;140m❯\x1b[39m";
 
 
 export class PipelineWriter extends DefaultAnsiWriter implements RexWriter {

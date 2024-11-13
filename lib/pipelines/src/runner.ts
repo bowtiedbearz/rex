@@ -8,7 +8,7 @@ import { jobsConsoleSink } from "./jobs/console_sink.ts";
 import { deployConsoleSink } from "./deployments/console_sink.ts";
 import { SequentialTasksPipeline, TaskPipeline, type TasksPipelineContext } from "./tasks/pipelines.ts";
 import { env } from "@bearz/env";
-import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipeline.ts";
+import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipelines.ts";
 import { TaskMap, REX_TASKS_REGISTRY } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
 import { DeploymentMap } from "@rex/deployments";
@@ -84,8 +84,8 @@ export class Runner {
             const tasksPipeline = new SequentialTasksPipeline();
             tasksPipeline.use(new SequentialTaskExecution());
 
-            ctx.services.set("tasks-pipeline", new SequentialTasksPipeline());
-            ctx.services.set("task-pipeline", new TaskPipeline());
+            ctx.services.set("tasks-pipeline", tasksPipeline);
+            ctx.services.set("task-pipeline", taskPipeline);
 
             for (const [key, value] of Object.entries(env.toObject())) {
                 if (value !== undefined) {
@@ -114,17 +114,14 @@ export class Runner {
                         const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            jobs: res.jobs,
                             registry: REX_TASKS_REGISTRY,
                             results: [],
                             status: "success",
                             bus: bus,
                         }) as TasksPipelineContext;
 
-                        const pipeline = ctx.services.get(
-                            "tasks-pipeline",
-                        ) as SequentialTasksPipeline;
-                        const results = await pipeline.run(
+                        
+                        const results = await tasksPipeline.run(
                             tasksCtx as unknown as TasksPipelineContext,
                         );
                         if (results.error) {

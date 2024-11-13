@@ -9,7 +9,7 @@ import {
     TaskStarted,
 } from "./messages.ts";
 import {
-    TaskPipeline,
+    type TaskPipeline,
     type TaskPipelineContext,
     TaskPipelineMiddleware,
     type TasksPipelineContext,
@@ -304,7 +304,14 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
                 },
             };
 
-            const taskPipeline = new TaskPipeline();
+            const taskPipeline = ctx.services.get("task-pipeline") as TaskPipeline;
+            if (!taskPipeline) {
+                ctx.error = new Error(`Service not found: task-pipeline`);
+                ctx.bus.error(ctx.error);
+                ctx.status = "failure";
+                return;
+            }
+        
             const r = await taskPipeline.run(nextContext);
             ctx.results.push(r);
             if (ctx.status !== "failure") {

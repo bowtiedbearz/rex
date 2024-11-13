@@ -3,6 +3,6 @@
     "description": "cli module",
     "version": "0.0.0",
     "exports": {
-        ".": "./src/mod.ts"
+        ".": "./src/main.ts"
     }
 }

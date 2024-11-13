@@ -31,7 +31,7 @@ export class JobCancelled extends BaseMessage {
     }
 }
 
-export class MissingDependencies extends BaseMessage {
+export class MissingJobDependencies extends BaseMessage {
     constructor(public readonly jobs: Array<{ job: Job; missing: string[] }>) {
         super("jobs:missing-dependencies");
     }

@@ -9,9 +9,7 @@ if (!g[REX_DEPLOYMENTS_SYMBOL]) {
     g[REX_DEPLOYMENTS_SYMBOL] = new DeploymentMap();
 }
 
-
 export const REX_DEPLOYMENTS = g[REX_DEPLOYMENTS_SYMBOL] as DeploymentMap;
-
 
 if (!g[REX_DEPLOYMENT_REGISTRY_SYMBOL]) {
     g[REX_DEPLOYMENT_REGISTRY_SYMBOL] = new DeploymentRegistry();

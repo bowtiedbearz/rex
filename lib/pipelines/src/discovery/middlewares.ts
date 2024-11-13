@@ -3,7 +3,7 @@ import { REX_TASKS, TaskMap, toError } from "@rex/tasks";
 import { DeploymentMap, REX_DEPLOYMENTS } from "@rex/deployments";
 import type { ExecutionContext } from "@rex/primitives";
 import type { Next } from "../pipeline.ts";
-import { type DiscoveryPipelineContext, DiscoveryPipelineMiddleware } from "./pipeline.ts";
+import { type DiscoveryPipelineContext, DiscoveryPipelineMiddleware } from "./pipelines.ts";
 import { exists, realPath } from "@bearz/fs";
 import { isAbsolute, join } from "@std/path";
 

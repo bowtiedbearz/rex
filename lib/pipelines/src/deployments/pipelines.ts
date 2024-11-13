@@ -64,7 +64,7 @@ export abstract class DeploymentsPipelineMiddleware {
     abstract run(ctx: DeploymentsPipelineContext, next: Next): Promise<void>;
 }
 
-export class SequentialTasksPipeline extends Pipeline<DeploymentsSummary, DeploymentsPipelineContext> {
+export class SequentialDeploymentsPipeline extends Pipeline<DeploymentsSummary, DeploymentsPipelineContext> {
     constructor() {
         super();
     }

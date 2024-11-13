@@ -1,4 +1,4 @@
-import { cmd, task, scriptTask } from "./lib/rex/src/file/mod.ts";
+import { cmd, task, scriptTask } from "./lib/rex/src/mod.ts";
 
 task("test", (_) => {
     console.log("Hello, world!");
