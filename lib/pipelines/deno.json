@@ -1,0 +1,16 @@
+{
+    "name": "@rex/pipelines",
+    "description": "pipelines module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./pipeline": "./src/pipeline.ts",
+        "./bus": "./src/bus.ts",
+        "./ci": "./src/ci/mod.ts",
+        "./discovery": "./src/discovery/mod.ts",
+        "./tasks": "./src/tasks/mod.ts",
+        "./jobs": "./src/jobs/mod.ts",
+        "./deployments": "./src/deployments/mod.ts",
+        "./runner": "./src/runner.ts"
+    }
+}

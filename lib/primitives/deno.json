@@ -4,13 +4,17 @@
     "version": "0.0.0",
     "exports": {
         ".": "./src/mod.ts",
-        "./collections": "./src/collections.ts",
-        "./contexts": "./src/contexts.ts",
-        "./descriptors": "./src/descriptors.ts",
-        "./middleware": "./src/middleware.ts",
-        "./job": "./src/job.ts",
-        "./task": "./src/task.ts",
-        "./plugin": "./src/plugin.ts",
-        "./utils": "./src/utils.ts"
+        "./collections": "./src/collections/mod.ts",
+        "./collections/proxy-map": "./src/collections/proxy_map.ts",
+        "./collections/object-map": "./src/collections/object_map.ts",
+        "./collections/string-map": "./src/collections/string_map.ts",
+        "./collections/ordered-map": "./src/collections/ordered_map.ts",
+        "./collections/inputs": "./src/collections/inputs.ts",
+        "./collections/ouputs": "./src/collections/outputs.ts",
+        "./contexts": "./src/contexts/mod.ts",
+        "./primitives": "./src/primitives.ts",
+        "./writer": "./src/writer.ts",
+        "./bus": "./src/bus.ts",
+        "./log-level": "./src/log_level.ts"
     }
 }

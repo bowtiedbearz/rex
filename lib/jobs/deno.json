@@ -1,6 +1,6 @@
 {
-    "name": "@bearz/tasks-win32",
-    "description": "tasks-win32 module",
+    "name": "@rex/jobs",
+    "description": "jobs module",
     "version": "0.0.0",
     "exports": {
         ".": "./src/mod.ts"
